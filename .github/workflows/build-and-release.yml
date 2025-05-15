@@ -12,9 +12,9 @@ on:
 
 # 添加权限配置
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: write # Needed for checkout and for softprops/action-gh-release to create releases
+  pages: write    # Needed for actions/deploy-pages
+  id-token: write # Needed for actions/deploy-pages
 
 jobs:
   build:
@@ -22,12 +22,13 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
         
       - name: 设置Node.js环境
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: '16' # 使用Node.js 16，更稳定
+          node-version: '18'
+          cache: 'npm'
           
       - name: 修复npm依赖问题
         run: |
@@ -51,11 +52,11 @@ jobs:
       - name: 创建发布文件
         run: npm run build:release
         
-      - name: 上传构建产物
-        uses: actions/upload-artifact@v1
+      - name: 上传构建产物 (整个dist目录)
+        uses: actions/upload-artifact@v4
         with:
-          name: built-extension
-          path: dist
+          name: built-extension-dist # Artifact包含整个dist目录结构
+          path: dist/ # 上传dist目录及其所有内容
 
   # 构建和部署GitHub Pages
   deploy-pages:
@@ -71,54 +72,59 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4 # Checkout is fine here, not strictly necessary if only using artifacts
       
-      - name: 下载构建产物
-        uses: actions/download-artifact@v1
+      - name: 下载构建产物 (built-extension-dist)
+        uses: actions/download-artifact@v4
         with:
-          name: built-extension
+          name: built-extension-dist
+          path: temp-download # 下载到 temp-download, 里面会有 dist 目录
       
       - name: 准备页面内容
         run: |
-          # 确保目录存在
           mkdir -p docs/website/assets/images
           mkdir -p docs/website/assets/videos
           
-          # 复制最新的扩展文件到演示站点
-          cp -r release/* docs/website/ || echo "release目录不存在"
-          
-          # 创建重定向到最新版本文件的链接
-          VERSION=$(cat release/version-info.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g' || echo "0.1.0")
-          cp release/pro-color-v${VERSION}.zip docs/website/pro-color-latest.zip || echo "复制ZIP文件失败"
-          cp release/pro-color-v${VERSION}.crx docs/website/pro-color-latest.crx || echo "复制CRX文件失败"
-          
-          # 复制版本信息
-          cp release/version-info.json docs/website/version.json || echo "复制版本信息失败"
-          
-          # 查看目录结构
-          echo "当前目录结构:"
-          ls -la
-          echo "构建产物目录:"
-          ls -la release || echo "release目录不存在"
-          ls -la dist || echo "dist目录不存在"
-          echo "站点目录:"
-          ls -la docs/website || echo "docs/website目录为空"
+          echo "检查下载的构建产物路径:"
+          ls -R temp-download
+
+          # 源文件在 temp-download/dist/release
+          SOURCE_RELEASE_DIR="temp-download/dist/release"
+
+          if [ -d "$SOURCE_RELEASE_DIR" ]; then
+            cp -r "$SOURCE_RELEASE_DIR"/* docs/website/ || echo "从 $SOURCE_RELEASE_DIR 复制文件失败"
+            
+            VERSION_INFO_PATH="docs/website/version-info.json"
+            if [ -f "$VERSION_INFO_PATH" ]; then
+              VERSION=$(cat "$VERSION_INFO_PATH" | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')
+            else
+              echo "警告: $VERSION_INFO_PATH 未找到，使用默认版本。"
+              VERSION="0.0.0"
+            fi
+
+            cp "docs/website/pro-color-v${VERSION}.zip" docs/website/pro-color-latest.zip || echo "创建 pro-color-latest.zip 失败"
+            cp "docs/website/pro-color-v${VERSION}.crx" docs/website/pro-color-latest.crx || echo "创建 pro-color-latest.crx 失败"
+            # version.json 已经被 cp -r 复制过去了
+          else
+            echo "错误: 源目录 $SOURCE_RELEASE_DIR 未找到！"
+            exit 1
+          fi
       
       # 配置GitHub Pages
       - name: 设置Pages
         id: pages
-        uses: actions/configure-pages@v1
+        uses: actions/configure-pages@v4
       
       # 打包页面内容
       - name: 打包页面内容
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: docs/website
       
       # 部署到GitHub Pages
       - name: 部署到GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
 
   # 只在标签推送时进行发布
   release:
@@ -128,12 +134,13 @@ jobs:
     
     steps:
       - name: 检出代码 
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4 # For git log in changelog
         
-      - name: 下载构建产物
-        uses: actions/download-artifact@v1
+      - name: 下载构建产物 (built-extension-dist)
+        uses: actions/download-artifact@v4
         with:
-          name: built-extension
+          name: built-extension-dist
+          path: ./ # 下载到工作区根目录, 会创建 dist/release, dist/zip 等
           
       - name: 获取版本号
         id: get_version
@@ -160,9 +167,9 @@ jobs:
           fi
           
           # 将更新日志内容设置为步骤输出
-          CHANGELOG=$(cat CHANGELOG.md)
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          CHANGELOG_CONTENT=$(cat CHANGELOG.md)
+          echo "CHANGELOG_BODY<<EOF" >> $GITHUB_OUTPUT # Use a different name for output
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       
       - name: 创建GitHub Release
@@ -170,10 +177,10 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           name: Pro Color v${{ steps.get_version.outputs.VERSION }}
-          body: ${{ steps.changelog.outputs.CHANGELOG }}
+          body: ${{ steps.changelog.outputs.CHANGELOG_BODY }}
           draft: false
           prerelease: false
           files: |
-            release/pro-color-v${{ steps.get_version.outputs.VERSION }}.zip
-            release/pro-color-v${{ steps.get_version.outputs.VERSION }}.crx
-            release/version-info.json 
+            dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.zip
+            dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.crx
+            dist/release/version-info.json 
