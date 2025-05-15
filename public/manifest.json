@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Pro Color - 网页主题切换",
+  "version": "1.0.0",
+  "description": "一键切换网页主题色彩，减少视觉疲劳，支持自定义主题",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Pro Color - 网页主题切换"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.iife.js"],
+      "css": ["themes.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+} 

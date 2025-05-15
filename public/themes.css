@@ -1,0 +1,501 @@
+/* 主题全局变量 */
+:root {
+  --text-color: #333333;
+  --bg-color: #f0f0f0;
+  --link-color: #0077cc;
+  --border-color: #cccccc;
+  --transition-time: 0.3s;
+}
+
+/* 白色主题 - 默认 */
+.theme-white {
+  --text-color: #333333;
+  --bg-color: #f0f0f0;
+  --link-color: #0077cc;
+  --border-color: #cccccc;
+}
+
+/* 护眼绿色主题 */
+.theme-green {
+  --text-color: #324035;
+  --bg-color: #A6C9AB;
+  --link-color: #2A6B3C;
+  --border-color: #88AB8E;
+}
+
+/* 黄色主题 - 类纸张 */
+.theme-yellow {
+  --text-color: #33302B;
+  --bg-color: #E4DFCD;
+  --link-color: #8B4513;
+  --border-color: #C2B99D;
+}
+
+/* 夜间深色主题 */
+.theme-night {
+  --text-color: #c9d1d9;
+  --bg-color: #0D1117;
+  --link-color: #58a6ff;
+  --border-color: #30363d;
+}
+
+/* =========== 插件UI元素保护 - 比任何其他规则优先级更高 =========== */
+#pro-color-container,
+#pro-color-floating-button,
+#pro-color-theme-panel,
+.pro-color-theme-option,
+.pro-color-theme-color,
+.pro-color-theme-name,
+.pro-color-reset,
+.pro-color-ui,
+.pro-color-protected,
+[id^="pro-color"] {
+  background-color: transparent !important;
+  color: initial !important;
+  border-color: initial !important;
+  filter: none !important;
+}
+
+/* 悬浮按钮样式 */
+#pro-color-floating-button {
+  position: fixed;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 99999;
+  user-select: none;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, left, right, opacity;
+}
+
+/* 主题面板强制样式 */
+#pro-color-theme-panel {
+  z-index: 99998 !important;
+  border-radius: 50px !important;
+  background-color: white !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2) !important;
+  padding: 8px !important;
+  will-change: opacity, transform;
+  transition: opacity 0.3s ease, transform 0.3s ease !important;
+}
+
+/* 主题选项强制样式 */
+.pro-color-theme-option {
+  background-color: transparent !important;
+}
+
+.pro-color-theme-color {
+  border: 2px solid #e0e0e0 !important;
+  background-color: initial !important;
+}
+
+.theme-white-color {
+  background-color: #f0f0f0 !important;
+}
+
+.theme-green-color {
+  background-color: #A6C9AB !important;
+}
+
+.theme-yellow-color {
+  background-color: #E4DFCD !important;
+}
+
+.theme-night-color {
+  background-color: #0D1117 !important;
+}
+
+/* =========== 图片和背景图片保护 =========== */
+/* 只有在主题应用时，才对标记的背景图片元素进行特殊处理 */
+html.pro-color-theme-applied .has-bg-image,
+html.pro-color-theme-applied [data-has-pseudo-bg="true"],
+html.pro-color-theme-applied [style*="background-image"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied [style*="background:url"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied [style*="background: url"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied [style*="background-image:url"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied [style*="background-image: url"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"])
+{
+  background-color: transparent !important;
+  color: initial !important;
+  border-color: initial !important;
+  filter: none !important;
+}
+
+/* 处理伪元素的背景图 - 更精确的选择器，避免影响功能性元素 */
+html.pro-color-theme-applied [class*="before"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.s_ipt_wr):not(.s_btn_wr):not(#su):not([class*="form"]),
+html.pro-color-theme-applied [class*="after"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.s_ipt_wr):not(.s_btn_wr):not(#su):not([class*="form"]),
+html.pro-color-theme-applied [class*="-bg"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.s_ipt_wr):not(.s_btn_wr):not(#su):not([class*="form"]),
+html.pro-color-theme-applied .bg:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.s_ipt_wr):not(.s_btn_wr):not(#su):not([class*="form"]),
+html.pro-color-theme-applied .background:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.s_ipt_wr):not(.s_btn_wr):not(#su):not([class*="form"]),
+html.pro-color-theme-applied .image:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied .img:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied .banner:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied .slider:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied .carousel:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied .hero:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied .cover:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied .header:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not([class*="form"]),
+html.pro-color-theme-applied .thumbnail:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied .avatar:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied .logo:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]) {
+  background-color: transparent !important;
+}
+
+/* 移除过于宽泛的选择器以避免影响网站功能 */
+/* 以下选择器已不再使用，因为它们可能会影响网站功能性元素
+html.pro-color-theme-applied [class*="background"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied [class*="image"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied [class*="img"]:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+*/
+
+/* =========== 网站特定规则 =========== */
+
+/* 百度搜索相关元素保护 */
+html.pro-color-theme-applied .s_ipt_wr, /* 输入框容器 */
+html.pro-color-theme-applied .s_btn_wr, /* "百度一下"按钮容器 */
+html.pro-color-theme-applied #su, /* "百度一下"按钮 */
+html.pro-color-theme-applied .s_form, /* 整个搜索表单 */
+html.pro-color-theme-applied .s_form_wrapper, /* 表单外层包裹 */
+
+/* 输入框本身 */
+html.pro-color-theme-applied #kw,
+html.pro-color-theme-applied .s_ipt,
+
+/* 输入框内部的各种图标按钮 */
+html.pro-color-theme-applied .quickdelete, /* 清除按钮 */
+html.pro-color-theme-applied .bdsug-voice, /* 语音输入按钮 */
+html.pro-color-theme-applied .soutu-btn, /* 识图按钮 */
+html.pro-color-theme-applied .camera_icon_mask SoutuBtn--new,
+html.pro-color-theme-applied .camera_icon,
+html.pro-color-theme-applied .voice_icon,
+html.pro-color-theme-applied .del_btn,
+html.pro-color-theme-applied .s_qrcode_nologin, /* 二维码登录 */
+html.pro-color-theme-applied .pfpanel_show_btn, /* 个性化面板按钮 */
+
+/* 搜索建议相关 */
+html.pro-color-theme-applied #form .bdsug, 
+html.pro-color-theme-applied .bdsug-overflow,
+
+/* 通用搜索框相关样式，以防万一 */
+html.pro-color-theme-applied [class*="search-box"],
+html.pro-color-theme-applied [class*="search-form"],
+html.pro-color-theme-applied [class*="search-btn"],
+html.pro-color-theme-applied [class*="search-input"],
+html.pro-color-theme-applied [class*="searchbox"],
+html.pro-color-theme-applied [id*="search-box"],
+html.pro-color-theme-applied [id*="search-form"],
+html.pro-color-theme-applied [id*="search-btn"],
+html.pro-color-theme-applied [id*="search-input"],
+html.pro-color-theme-applied [id*="searchbox"],
+
+/* 从截图观察到的精确类名 */
+html.pro-color-theme-applied .s_ipt_wr.bg,
+html.pro-color-theme-applied .s_btn_wr.bg,
+html.pro-color-theme-applied #su.bg,
+html.pro-color-theme-applied .wrapper_new .s_btn_wr,
+html.pro-color-theme-applied .wrapper_new .s_btn,
+html.pro-color-theme-applied .wrapper_new .head_wrapper input,
+html.pro-color-theme-applied .wrapper_new input {
+  background-color: initial !important;
+  color: initial !important; 
+  border-color: initial !important;
+  filter: none !important;
+  background-image: initial !important;
+  background: initial !important;
+  border: initial !important;
+  outline: initial !important;
+  box-shadow: initial !important;
+  text-shadow: initial !important;
+  -webkit-appearance: initial !important;
+  appearance: initial !important; /* 增加 appearance */
+  fill: currentColor !important; /* 对于SVG图标，尝试用这个恢复 */
+  stroke: currentColor !important; /* 对于SVG图标 */
+}
+
+/* 针对夜间模式下百度搜索框的特殊适配 */
+html.pro-color-theme-applied.theme-night .s_ipt_wr,
+html.pro-color-theme-applied.theme-night #kw,
+html.pro-color-theme-applied.theme-night .s_ipt {
+  background-color: #2c2c2c !important; /* 深灰色背景 */
+  color: #c9d1d9 !important; /* 浅色文字 */
+  border: 1px solid #3a3a3a !important; /* 稍亮边框 */
+}
+
+/* 夜间模式下，确保输入框内的图标是浅色的，或者恢复其原样 */
+html.pro-color-theme-applied.theme-night .quickdelete,
+html.pro-color-theme-applied.theme-night .bdsug-voice,
+html.pro-color-theme-applied.theme-night .soutu-btn,
+html.pro-color-theme-applied.theme-night .camera_icon,
+html.pro-color-theme-applied.theme-night .voice_icon,
+html.pro-color-theme-applied.theme-night .del_btn {
+  /* 尝试让图标颜色继承父元素的浅色文字，或者使用滤镜反转 */
+  /* 如果是SVG fill/stroke, color:initial 可能不够，需要特定处理 */
+  /* 如果是背景图片，则上述的 background-image: initial 应该生效 */
+  /* 对于字体图标或SVG，尝试强制颜色 */
+  color: #afafaf !important; 
+  fill: #afafaf !important;
+}
+
+/* 夜间模式下百度一下按钮 */
+html.pro-color-theme-applied.theme-night #su {
+    background-color: #333959 !important; /* 按钮背景色 */
+    color: #c9d1d9 !important; /* 文字颜色 */
+    border: 1px solid #4a4e6e !important;
+}
+
+html.pro-color-theme-applied.theme-night #su:hover {
+    background-color: #3c426e !important;
+}
+
+/* =========== 应用主题样式 - 但优先级低于上面的保护规则 =========== */
+html.pro-color-theme-applied,
+html.pro-color-theme-applied body {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  transition: background-color var(--transition-time), color var(--transition-time) !important;
+}
+
+/* 基础元素样式 - 避免背景图被覆盖 */
+html.pro-color-theme-applied div:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied p:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied span:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied h1:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied h2:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied h3:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied h4:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied h5:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied h6:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied li:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied article:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied section:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]),
+html.pro-color-theme-applied main:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):not(.has-bg-image):not([data-has-pseudo-bg="true"]):not([style*="background-image"]):not([style*="background:url"]) {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* 链接样式 */
+html.pro-color-theme-applied a:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]) {
+  color: var(--link-color) !important;
+}
+
+html.pro-color-theme-applied a:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]):visited {
+  color: var(--link-color) !important;
+}
+
+/* 表单元素 */
+html.pro-color-theme-applied input:not([type="image"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied textarea:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]),
+html.pro-color-theme-applied select:not([id^="pro-color"]):not([class*="pro-color-ui"]):not([class*="pro-color-protected"]) {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* 特定排除元素 - 不应用主题 */
+html.pro-color-theme-applied img,
+html.pro-color-theme-applied video,
+html.pro-color-theme-applied canvas,
+html.pro-color-theme-applied svg, 
+html.pro-color-theme-applied iframe,
+html.pro-color-theme-applied [role="img"],
+html.pro-color-theme-applied [aria-hidden="true"],
+html.pro-color-theme-applied [class*="logo"],
+html.pro-color-theme-applied button[type="submit"],
+html.pro-color-theme-applied input[type="submit"],
+html.pro-color-theme-applied input[type="image"],
+html.pro-color-theme-applied input[type="button"] {
+  background-color: initial !important;
+  color: initial !important;
+  filter: none !important;
+}
+
+/* 控制器容器 */
+#pro-color-container {
+  position: fixed;
+  z-index: 99990;
+  pointer-events: none;
+}
+
+#pro-color-floating-button:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-50%) scale(1.05);
+}
+
+#pro-color-floating-button.dragging {
+  cursor: grabbing;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  opacity: 0.9 !important;
+  transform: translateY(-50%) scale(1.1);
+  transition: none !important;
+  will-change: transform, left, top, right;
+}
+
+/* 主题选择面板 - 横向排列 */
+#pro-color-theme-panel {
+  /* 基本样式 */
+  z-index: 99998;
+  border-radius: 50px;
+  background-color: white !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  display: none;
+  
+  /* 布局样式 */
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  
+  /* 启用硬件加速，减少重绘 */
+  will-change: opacity, transform;
+  /* 过渡效果 */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: auto;
+}
+
+#pro-color-theme-panel.visible {
+  display: flex;
+}
+
+#pro-color-theme-panel.panel-left.visible {
+  animation: slideInFromRight 0.25s forwards;
+}
+
+#pro-color-theme-panel.panel-right.visible {
+  animation: slideInFromLeft 0.25s forwards;
+}
+
+@keyframes slideInFromRight {
+  from { 
+    opacity: 0;
+    transform: translateX(15px) translateY(-50%);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0) translateY(-50%);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from { 
+    opacity: 0;
+    transform: translateX(-15px) translateY(-50%);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0) translateY(-50%);
+  }
+}
+
+.pro-color-theme-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.pro-color-theme-option:hover {
+  background-color: #f5f5f5 !important;
+}
+
+.pro-color-theme-color {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #e0e0e0;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pro-color-theme-option:hover .pro-color-theme-color {
+  transform: scale(1.1);
+  border-color: #999 !important;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.15);
+}
+
+.pro-color-theme-name {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #666;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-5px);
+  white-space: nowrap;
+  padding: 4px 10px;
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  color: white !important;
+  border-radius: 4px;
+  pointer-events: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.pro-color-theme-option:hover .pro-color-theme-name {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 重置主题按钮样式 */
+.pro-color-reset .pro-color-theme-color {
+  background-color: #f8f8f8 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-reset-color svg {
+  width: 20px;
+  height: 20px;
+  fill: #cdcdcd !important;
+}
+
+/* 网站特定规则 - 百度 */
+/* 这些规则已被上面的更精确保护规则替代
+html.pro-color-theme-applied[data-site="baidu"] .s_form,
+html.pro-color-theme-applied[data-site="baidu"] .s_form_wrapper,
+html.pro-color-theme-applied[data-site="baidu"] .s_btn_wr,
+html.pro-color-theme-applied[data-site="baidu"] #s_form input,
+html.pro-color-theme-applied[data-site="baidu"] .s-top-nav-tab-item,
+html.pro-color-theme-applied[data-site="baidu"] .c-title a
+{
+  background-color: initial !important;
+  color: initial !important; 
+}
+*/
+
+/* 网站特定规则 - 百度各主题下的链接颜色 */
+html.pro-color-theme-applied.theme-white[data-site="baidu"] .c-title a:not(.pro-color-preserved) {
+  color: #2440b3 !important;
+}
+
+html.pro-color-theme-applied.theme-green[data-site="baidu"] .c-title a:not(.pro-color-preserved) {
+  color: #2A6B3C !important;
+}
+
+html.pro-color-theme-applied.theme-yellow[data-site="baidu"] .c-title a:not(.pro-color-preserved) {
+  color: #8B4513 !important;
+}
+
+html.pro-color-theme-applied.theme-night[data-site="baidu"] .c-title a:not(.pro-color-preserved) {
+  color: #58a6ff !important;
+} 

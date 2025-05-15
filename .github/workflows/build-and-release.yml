@@ -1,0 +1,145 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+    # 在推送标签时也触发
+    tags:
+      - 'v*' # 匹配格式如 v1.0.0 的标签
+  
+  # 允许手动触发工作流
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+        
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # 使用Node.js 18
+          cache: 'npm'
+          
+      - name: 安装依赖
+        run: npm ci
+        
+      - name: 设置私钥
+        run: node scripts/setup-private-key.js
+        env:
+          EXTENSION_PRIVATE_KEY: ${{ secrets.EXTENSION_PRIVATE_KEY }}
+        
+      - name: 构建扩展
+        run: npm run build:extension
+      
+      - name: 创建ZIP包
+        run: npm run build:zip
+      
+      - name: 创建CRX包
+        run: npm run build:crx
+        
+      - name: 创建发布文件
+        run: npm run build:release
+        
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-extension
+          path: |
+            dist/release/
+            dist/zip/
+            dist/crx/
+          retention-days: 5
+
+  # 只在标签推送时进行发布
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码 
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 获取完整的Git历史记录，用于生成更新日志
+          
+      - name: 下载构建产物
+        uses: actions/download-artifact@v3
+        with:
+          name: built-extension
+          path: dist
+          
+      - name: 获取版本号
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+      - name: 创建更新日志
+        id: changelog
+        run: |
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          echo "## Pro Color 浏览器扩展 v${VERSION}" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "发布日期: $(date +'%Y-%m-%d')" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### 更新内容" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          
+          # 如果有上一个标签，显示自上一个标签以来的提交
+          PREV_TAG=$(git tag --sort=-v:refname | grep -A 1 "v${VERSION}" | tail -n 1)
+          if [ ! -z "$PREV_TAG" ] && [ "$PREV_TAG" != "v${VERSION}" ]; then
+            echo "自 ${PREV_TAG} 以来的更新:" >> CHANGELOG.md
+            git log ${PREV_TAG}..HEAD --pretty=format:"- %s" --reverse >> CHANGELOG.md
+          else
+            echo "- 首次发布" >> CHANGELOG.md
+          fi
+          
+          # 将更新日志内容设置为步骤输出
+          CHANGELOG=$(cat CHANGELOG.md)
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: 创建GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Pro Color v${{ steps.get_version.outputs.VERSION }}
+          body: ${{ steps.changelog.outputs.CHANGELOG }}
+          draft: false
+          prerelease: false
+      
+      - name: 上传ZIP资源
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: pro-color-v${{ steps.get_version.outputs.VERSION }}.zip
+          asset_content_type: application/zip
+      
+      - name: 上传CRX资源
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.crx
+          asset_name: pro-color-v${{ steps.get_version.outputs.VERSION }}.crx
+          asset_content_type: application/x-chrome-extension
+      
+      - name: 上传版本信息
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/release/version-info.json
+          asset_name: version-info.json
+          asset_content_type: application/json 

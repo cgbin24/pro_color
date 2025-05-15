@@ -1,0 +1,125 @@
+/* 弹出窗口容器 */
+.popup-container {
+  width: 300px;
+  padding: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+/* 标题栏 */
+.popup-header {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.popup-header h1 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.current-site {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 主题列表 */
+.theme-list {
+  margin-bottom: 16px;
+}
+
+.theme-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+}
+
+.theme-item:hover {
+  background-color: #f5f5f5;
+}
+
+.theme-item.active {
+  border: 1px solid #3498db;
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.theme-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 16px;
+  border: 1px solid #e0e0e0;
+}
+
+.theme-white-color {
+  background-color: #f0f0f0;
+}
+
+.theme-green-color {
+  background-color: #A6C9AB;
+}
+
+.theme-yellow-color {
+  background-color: #E4DFCD;
+}
+
+.theme-night-color {
+  background-color: #0D1117;
+}
+
+.theme-name {
+  font-size: 14px;
+}
+
+/* 操作按钮 */
+.popup-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.popup-actions button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  outline: none;
+}
+
+.remove-theme-btn {
+  background-color: #f1f1f1;
+  color: #666;
+}
+
+.remove-theme-btn:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.remove-theme-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.options-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.options-btn:hover {
+  background-color: #2980b9;
+} 
