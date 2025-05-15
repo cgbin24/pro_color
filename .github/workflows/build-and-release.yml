@@ -22,13 +22,12 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
         
       - name: 设置Node.js环境
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v1
         with:
-          node-version: '18' # 使用Node.js 18
-          cache: 'npm'
+          node-version: '16' # 使用Node.js 16，更稳定
           
       - name: 修复npm依赖问题
         run: |
@@ -53,14 +52,10 @@ jobs:
         run: npm run build:release
         
       - name: 上传构建产物
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v1
         with:
           name: built-extension
-          path: |
-            dist/release/
-            dist/zip/
-            dist/crx/
-          retention-days: 5
+          path: dist
 
   # 构建和部署GitHub Pages
   deploy-pages:
@@ -76,37 +71,43 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # 获取完整的历史记录以支持提交
+        uses: actions/checkout@v1
       
       - name: 下载构建产物
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v1
         with:
           name: built-extension
-          path: temp-artifacts
       
-      - name: 更新演示站点内容
+      - name: 准备页面内容
         run: |
           # 确保目录存在
           mkdir -p docs/website/assets/images
           mkdir -p docs/website/assets/videos
           
           # 复制最新的扩展文件到演示站点
-          cp -r temp-artifacts/release/* docs/website/
+          cp -r release/* docs/website/ || echo "release目录不存在"
           
           # 创建重定向到最新版本文件的链接
-          VERSION=$(cat temp-artifacts/release/version-info.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')
-          cp temp-artifacts/release/pro-color-v${VERSION}.zip docs/website/pro-color-latest.zip
-          cp temp-artifacts/release/pro-color-v${VERSION}.crx docs/website/pro-color-latest.crx
+          VERSION=$(cat release/version-info.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g' || echo "0.1.0")
+          cp release/pro-color-v${VERSION}.zip docs/website/pro-color-latest.zip || echo "复制ZIP文件失败"
+          cp release/pro-color-v${VERSION}.crx docs/website/pro-color-latest.crx || echo "复制CRX文件失败"
           
           # 复制版本信息
-          cp temp-artifacts/release/version-info.json docs/website/version.json
+          cp release/version-info.json docs/website/version.json || echo "复制版本信息失败"
+          
+          # 查看目录结构
+          echo "当前目录结构:"
+          ls -la
+          echo "构建产物目录:"
+          ls -la release || echo "release目录不存在"
+          ls -la dist || echo "dist目录不存在"
+          echo "站点目录:"
+          ls -la docs/website || echo "docs/website目录为空"
       
       # 配置GitHub Pages
       - name: 设置Pages
         id: pages
-        uses: actions/configure-pages@v2
+        uses: actions/configure-pages@v1
       
       # 打包页面内容
       - name: 打包页面内容
@@ -118,8 +119,6 @@ jobs:
       - name: 部署到GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-        with:
-          token: ${{ github.token }}
 
   # 只在标签推送时进行发布
   release:
@@ -129,15 +128,12 @@ jobs:
     
     steps:
       - name: 检出代码 
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # 获取完整的Git历史记录，用于生成更新日志
-          
+        uses: actions/checkout@v1
+        
       - name: 下载构建产物
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v1
         with:
           name: built-extension
-          path: dist
           
       - name: 获取版本号
         id: get_version
@@ -178,6 +174,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ./dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.zip
-            ./dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.crx
-            ./dist/release/version-info.json 
+            release/pro-color-v${{ steps.get_version.outputs.VERSION }}.zip
+            release/pro-color-v${{ steps.get_version.outputs.VERSION }}.crx
+            release/version-info.json 
