@@ -22,10 +22,10 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         
       - name: 设置Node.js环境
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
           node-version: '18' # 使用Node.js 18
           cache: 'npm'
@@ -53,7 +53,7 @@ jobs:
         run: npm run build:release
         
       - name: 上传构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
           name: built-extension
           path: |
@@ -76,12 +76,12 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0  # 获取完整的历史记录以支持提交
       
       - name: 下载构建产物
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v2
         with:
           name: built-extension
           path: temp-artifacts
@@ -106,18 +106,18 @@ jobs:
       # 配置GitHub Pages
       - name: 设置Pages
         id: pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v2
       
       # 打包页面内容
       - name: 打包页面内容
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v1
         with:
           path: docs/website
       
       # 部署到GitHub Pages
       - name: 部署到GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v1
         with:
           token: ${{ github.token }}
 
@@ -129,12 +129,12 @@ jobs:
     
     steps:
       - name: 检出代码 
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0  # 获取完整的Git历史记录，用于生成更新日志
           
       - name: 下载构建产物
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v2
         with:
           name: built-extension
           path: dist
