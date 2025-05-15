@@ -24,8 +24,10 @@ jobs:
           node-version: '18' # 使用Node.js 18
           cache: 'npm'
           
-      - name: 安装依赖
-        run: npm ci
+      - name: 修复npm依赖问题
+        run: |
+          rm -rf package-lock.json node_modules
+          npm install
         
       - name: 设置私钥
         run: node scripts/setup-private-key.js
