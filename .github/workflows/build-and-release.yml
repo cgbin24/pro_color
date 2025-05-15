@@ -14,6 +14,13 @@ on:
 permissions:
   contents: write
   packages: write
+  pages: write      # 添加Pages权限
+  id-token: write   # 用于Pages部署验证
+
+# 环境变量设置
+env:
+  # 指定GitHub Pages的部署环境
+  GITHUB_PAGES_ENV: github-pages
 
 jobs:
   build:
@@ -60,6 +67,151 @@ jobs:
             dist/zip/
             dist/crx/
           retention-days: 5
+
+  # 构建和部署GitHub Pages
+  deploy-pages:
+    needs: build
+    runs-on: ubuntu-latest
+    # 确保在主分支推送或手动触发时运行，但不在标签推送时运行
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') || github.event_name == 'workflow_dispatch'
+    
+    # 使用GitHub Pages环境
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 安装依赖
+        run: npm install
+      
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: built-extension
+          path: temp-artifacts
+      
+      - name: 设置Pages
+        uses: actions/configure-pages@v4
+        
+      - name: 构建演示网站
+        run: |
+          # 创建pages目录
+          mkdir -p pages
+          
+          # 复制最新的扩展文件到演示站点
+          cp -r temp-artifacts/release/* pages/
+          
+          # 创建demo页面
+          cat > pages/index.html << EOF
+          <!DOCTYPE html>
+          <html lang="zh-CN">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Pro Color 浏览器扩展演示</title>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+            <style>
+              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding-top: 2rem; }
+              .hero { background-color: #f8f9fa; padding: 3rem 0; margin-bottom: 2rem; }
+              .download-btn { margin-top: 1rem; }
+              .feature-icon { font-size: 2rem; margin-bottom: 1rem; color: #0d6efd; }
+              .footer { margin-top: 3rem; padding: 2rem 0; background-color: #f8f9fa; }
+              .version-badge { background-color: #0d6efd; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="hero text-center">
+                <h1>Pro Color 浏览器扩展</h1>
+                <p class="lead">一个专业的浏览器颜色主题管理扩展</p>
+                <div class="download-btn">
+                  <a href="pro-color-latest.zip" class="btn btn-primary btn-lg">下载ZIP包</a>
+                  <a href="pro-color-latest.crx" class="btn btn-secondary btn-lg">下载CRX包</a>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-4 text-center">
+                  <div class="feature-icon">🎨</div>
+                  <h3>丰富的主题</h3>
+                  <p>提供多种精心设计的颜色主题，满足不同用户的审美需求</p>
+                </div>
+                <div class="col-md-4 text-center">
+                  <div class="feature-icon">⚡</div>
+                  <h3>快速切换</h3>
+                  <p>一键切换不同的颜色主题，提升浏览体验</p>
+                </div>
+                <div class="col-md-4 text-center">
+                  <div class="feature-icon">🔧</div>
+                  <h3>自定义选项</h3>
+                  <p>允许用户定制自己的颜色方案</p>
+                </div>
+              </div>
+              
+              <div class="row mt-5">
+                <div class="col-md-12">
+                  <h2>使用说明</h2>
+                  <ol>
+                    <li>下载扩展包（CRX或ZIP文件）</li>
+                    <li>在Chrome浏览器中打开扩展管理页面 (chrome://extensions/)</li>
+                    <li>启用开发者模式</li>
+                    <li>将下载的扩展文件拖放到浏览器窗口中安装</li>
+                    <li>点击工具栏中的扩展图标，选择您喜欢的颜色主题</li>
+                  </ol>
+                </div>
+              </div>
+              
+              <div class="footer text-center">
+                <p>Pro Color 浏览器扩展 · <span class="version-badge">最新版本</span></p>
+                <p><a href="https://github.com/cgbin24/pro_color" target="_blank">GitHub 项目</a></p>
+              </div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+          </body>
+          </html>
+          EOF
+          
+          # 创建重定向到最新版本文件的链接
+          VERSION=$(cat temp-artifacts/release/version-info.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')
+          cp temp-artifacts/release/pro-color-v${VERSION}.zip pages/pro-color-latest.zip
+          cp temp-artifacts/release/pro-color-v${VERSION}.crx pages/pro-color-latest.crx
+          
+          # 复制版本信息
+          cp temp-artifacts/release/version-info.json pages/version.json
+          
+          # 创建README文件用于GitHub Pages
+          cat > pages/README.md << EOF
+          # Pro Color 浏览器扩展
+          
+          这是Pro Color浏览器扩展的演示网站。您可以在这里下载最新版本的扩展，并了解其使用方法。
+          
+          ## 链接
+          
+          - [主页](https://cgbin24.github.io/pro_color/)
+          - [GitHub仓库](https://github.com/cgbin24/pro_color)
+          
+          ## 最新版本
+          
+          当前版本: v${VERSION}
+          EOF
+      
+      - name: 上传GitHub Pages构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'pages'
+      
+      - name: 部署到GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   # 只在标签推送时进行发布
   release:
