@@ -10,6 +10,11 @@ on:
   # 允许手动触发工作流
   workflow_dispatch:
 
+# 添加权限配置
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -105,43 +110,14 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
       
       - name: 创建GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
-          release_name: Pro Color v${{ steps.get_version.outputs.VERSION }}
+          name: Pro Color v${{ steps.get_version.outputs.VERSION }}
           body: ${{ steps.changelog.outputs.CHANGELOG }}
           draft: false
           prerelease: false
-      
-      - name: 上传ZIP资源
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.zip
-          asset_name: pro-color-v${{ steps.get_version.outputs.VERSION }}.zip
-          asset_content_type: application/zip
-      
-      - name: 上传CRX资源
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.crx
-          asset_name: pro-color-v${{ steps.get_version.outputs.VERSION }}.crx
-          asset_content_type: application/x-chrome-extension
-      
-      - name: 上传版本信息
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/release/version-info.json
-          asset_name: version-info.json
-          asset_content_type: application/json 
+          files: |
+            ./dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.zip
+            ./dist/release/pro-color-v${{ steps.get_version.outputs.VERSION }}.crx
+            ./dist/release/version-info.json 
