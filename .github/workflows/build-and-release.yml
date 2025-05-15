@@ -13,14 +13,8 @@ on:
 # 添加权限配置
 permissions:
   contents: write
-  packages: write
-  pages: write      # 添加Pages权限
-  id-token: write   # 用于Pages部署验证
-
-# 环境变量设置
-env:
-  # 指定GitHub Pages的部署环境
-  GITHUB_PAGES_ENV: github-pages
+  pages: write
+  id-token: write
 
 jobs:
   build:
@@ -85,7 +79,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # 获取完整的历史记录以支持提交
-          token: ${{ secrets.GITHUB_TOKEN }} # 确保有推送权限
       
       - name: 下载构建产物
         uses: actions/download-artifact@v4
@@ -109,25 +102,24 @@ jobs:
           
           # 复制版本信息
           cp temp-artifacts/release/version-info.json docs/website/version.json
-          
-          # 提交更改到仓库
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-          git add docs/website/
-          git commit -m "更新GitHub Pages演示站点内容" || echo "没有需要提交的更改"
-          git push origin ${GITHUB_REF_NAME} || echo "推送失败，可能是权限问题"
       
+      # 配置GitHub Pages
       - name: 设置Pages
-        uses: actions/configure-pages@v4
+        id: pages
+        uses: actions/configure-pages@v3
       
+      # 打包页面内容
       - name: 打包页面内容
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v2
         with:
-          path: 'docs/website'
+          path: docs/website
       
+      # 部署到GitHub Pages
       - name: 部署到GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v2
+        with:
+          token: ${{ github.token }}
 
   # 只在标签推送时进行发布
   release:
