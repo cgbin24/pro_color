@@ -88,8 +88,8 @@ jobs:
           echo "检查下载的构建产物路径:"
           ls -R temp-download
 
-          # 源文件在 temp-download/dist/release
-          SOURCE_RELEASE_DIR="temp-download/dist/release"
+          # 源文件在 temp-download/release (因为上传的是 dist/ 的内容)
+          SOURCE_RELEASE_DIR="temp-download/release"
 
           if [ -d "$SOURCE_RELEASE_DIR" ]; then
             cp -r "$SOURCE_RELEASE_DIR"/* docs/website/ || echo "从 $SOURCE_RELEASE_DIR 复制文件失败"
@@ -102,9 +102,19 @@ jobs:
               VERSION="0.0.0"
             fi
 
-            cp "docs/website/pro-color-v${VERSION}.zip" docs/website/pro-color-latest.zip || echo "创建 pro-color-latest.zip 失败"
-            cp "docs/website/pro-color-v${VERSION}.crx" docs/website/pro-color-latest.crx || echo "创建 pro-color-latest.crx 失败"
-            # version.json 已经被 cp -r 复制过去了
+            # 确保源文件存在才复制，避免 cp 因通配符无匹配而失败
+            if [ -f "docs/website/pro-color-v${VERSION}.zip" ]; then
+              cp "docs/website/pro-color-v${VERSION}.zip" docs/website/pro-color-latest.zip || echo "创建 pro-color-latest.zip 失败"
+            else
+              echo "警告: docs/website/pro-color-v${VERSION}.zip 未找到"
+            fi
+            
+            if [ -f "docs/website/pro-color-v${VERSION}.crx" ]; then
+              cp "docs/website/pro-color-v${VERSION}.crx" docs/website/pro-color-latest.crx || echo "创建 pro-color-latest.crx 失败"
+            else
+              echo "警告: docs/website/pro-color-v${VERSION}.crx 未找到"
+            fi
+            # version.json 已经被 cp -r 从 $SOURCE_RELEASE_DIR 复制过去了
           else
             echo "错误: 源目录 $SOURCE_RELEASE_DIR 未找到！"
             exit 1
