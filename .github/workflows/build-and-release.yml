@@ -99,19 +99,21 @@ jobs:
           name: built-extension
           path: temp-artifacts
       
-      - name: 设置Pages
-        uses: actions/configure-pages@v4
-        
-      - name: 构建演示网站
+      - name: 更新docs目录中的演示站点内容
         run: |
-          # 创建pages目录
-          mkdir -p pages
+          # 确保docs/website目录存在
+          mkdir -p docs/website
+          mkdir -p docs/website/assets
           
           # 复制最新的扩展文件到演示站点
-          cp -r temp-artifacts/release/* pages/
+          cp -r temp-artifacts/release/* docs/website/
+          
+          # 为后续可能添加的媒体文件创建目录
+          mkdir -p docs/website/assets/images
+          mkdir -p docs/website/assets/videos
           
           # 创建demo页面
-          cat > pages/index.html << EOF
+          cat > docs/website/index.html << EOF
           <!DOCTYPE html>
           <html lang="zh-CN">
           <head>
@@ -182,32 +184,26 @@ jobs:
           
           # 创建重定向到最新版本文件的链接
           VERSION=$(cat temp-artifacts/release/version-info.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[", ]//g')
-          cp temp-artifacts/release/pro-color-v${VERSION}.zip pages/pro-color-latest.zip
-          cp temp-artifacts/release/pro-color-v${VERSION}.crx pages/pro-color-latest.crx
+          cp temp-artifacts/release/pro-color-v${VERSION}.zip docs/website/pro-color-latest.zip
+          cp temp-artifacts/release/pro-color-v${VERSION}.crx docs/website/pro-color-latest.crx
           
           # 复制版本信息
-          cp temp-artifacts/release/version-info.json pages/version.json
+          cp temp-artifacts/release/version-info.json docs/website/version.json
           
-          # 创建README文件用于GitHub Pages
-          cat > pages/README.md << EOF
-          # Pro Color 浏览器扩展
-          
-          这是Pro Color浏览器扩展的演示网站。您可以在这里下载最新版本的扩展，并了解其使用方法。
-          
-          ## 链接
-          
-          - [主页](https://cgbin24.github.io/pro_color/)
-          - [GitHub仓库](https://github.com/cgbin24/pro_color)
-          
-          ## 最新版本
-          
-          当前版本: v${VERSION}
-          EOF
+          # 提交更改到仓库
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add docs/website/
+          git commit -m "更新GitHub Pages演示站点内容" || echo "没有需要提交的更改"
+          git push origin ${GITHUB_REF_NAME} || echo "推送失败，可能是权限问题"
       
-      - name: 上传GitHub Pages构建产物
+      - name: 设置Pages
+        uses: actions/configure-pages@v4
+        
+      - name: 构建并部署Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'pages'
+          path: 'docs/website'
       
       - name: 部署到GitHub Pages
         id: deployment

@@ -179,4 +179,4 @@ https://cgbin24.github.io/pro_color/
 - 查看使用说明
 - 下载最新版本的扩展包（ZIP和CRX格式）
 
-演示站点由 GitHub Pages 提供支持，每次推送到主分支后自动更新。更多关于演示站点的信息，请参阅 [GitHub Pages 部署说明](docs/github-pages.md)。 
+演示站点内容位于 `docs/website` 目录中，由 GitHub Pages 提供支持，每次推送到主分支后自动更新。更多关于演示站点的信息，请参阅 [GitHub Pages 部署说明](docs/github-pages.md)。 
