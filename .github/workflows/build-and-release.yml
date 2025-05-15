@@ -45,7 +45,7 @@ jobs:
         run: npm run build:release
         
       - name: 上传构建产物
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: built-extension
           path: |
@@ -67,7 +67,7 @@ jobs:
           fetch-depth: 0  # 获取完整的Git历史记录，用于生成更新日志
           
       - name: 下载构建产物
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: built-extension
           path: dist
